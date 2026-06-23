@@ -4,11 +4,11 @@ w_height = 720
 title = "Legends of the Dungeon"
 tile_size = 32
 
-from game_logic import main_menu
 from sys import exit
+from random import randint, choice
 import pygame
-from random import randint
 import math
+from data import REGULAR_ENEMIES, BOSSES
 
 class Player:
     def __init__(self, x, y, name):
@@ -105,35 +105,51 @@ class Player:
         screen.blit(current_anim[self.anim_frame],self.player_rect)
 
 class Enemy:
-    def __init__(self, x,y):
-        self.x = x
-        self.y = y
-        self.hp = 100
-        self.speed = 150
-        self.surf = pygame.Surface((40,60))
-        self.rect = self.surf.get_rect(center = (x,y))
-    
-    def update(self,player_rect,dt):
-        dx = player_rect.x - self.rect.x
-        dy = player_rect.y - self.rect.y
-        dis = math.sqrt(dx*dx+dy*dy)
+    def __init__(self, x, y, data):
+        self.name    = data["name"]
+        self.max_hp  = data["max_hp"]
+        self.hp      = data["max_hp"]
+        self.speed   = 150
+        self.surf    = pygame.Surface((40, 60))
+        self.surf.fill((180, 60, 60))
+        self.rect    = self.surf.get_rect(center=(x, y))
+
+    def update(self, player_rect, enemies, dt):
+        dx = player_rect.centerx - self.rect.centerx
+        dy = player_rect.centery - self.rect.centery
+        dis = math.sqrt(dx*dx + dy*dy)
         if dis != 0:
             dx /= dis
             dy /= dis
-        self.rect.x += dx*self.speed*dt
-        self.rect.y += dy*self.speed*dt
-    
-    def draw(self,screen):
-        screen.blit(self.surf,self.rect)
-        bar_width = 40
+        self.rect.x += dx * self.speed * dt
+        self.rect.y += dy * self.speed * dt
+        # separate from other enemies
+        for other in enemies:
+            if other is not self and self.rect.colliderect(other.rect):
+                ox = self.rect.centerx - other.rect.centerx
+                oy = self.rect.centery - other.rect.centery
+                od = math.sqrt(ox*ox + oy*oy)
+                if od != 0:
+                    self.rect.x += (ox / od) * 2
+                    self.rect.y += (oy / od) * 2
+
+    def draw(self, screen):
+        screen.blit(self.surf, self.rect)
+        bar_width  = 50
         bar_height = 6
         bar_x = self.rect.x
-        bar_y = self.rect.y-15
-        # background
-        pygame.draw.rect(screen, (80, 0, 0), (bar_x,bar_y,bar_width,bar_height))
-        # foreground - width shrinks as hp drops
-        current_width = int(bar_width*(self.hp/100))
-        pygame.draw.rect(screen, (200, 0, 0), (bar_x,bar_y,current_width,bar_height))
+        bar_y = self.rect.y - 12
+        pygame.draw.rect(screen, (80, 0, 0),   (bar_x, bar_y, bar_width, bar_height))
+        current_width = int(bar_width * (self.hp / self.max_hp))
+        pygame.draw.rect(screen, (200, 0, 0),  (bar_x, bar_y, current_width, bar_height))
+
+class Boss(Enemy):
+    def __init__(self, x, y, data):
+        super().__init__(x, y, data)
+        self.speed = 100
+        self.surf  = pygame.Surface((60, 80))
+        self.surf.fill((140, 0, 200))
+        self.rect  = self.surf.get_rect(center=(x, y))
     
 
 kset = {
@@ -170,6 +186,32 @@ def draw(screen):
     for wall in wall_rects:
         pygame.draw.rect(screen,(40,30,20),wall)
 
+# spawn points spread around the room, away from center and walls
+coords = [(250, 180), (640, 150), (1000, 180),(200, 360),(1050, 360),(250, 530), (640, 560), (1000, 530),]
+
+def generate_room(room_num):
+    # every 3rd room is a boss (room 2, 5, 8 ... index-wise)
+    if (room_num + 1) % 3 == 0:
+        boss_data = BOSSES[(room_num // 3) % len(BOSSES)]
+        return [Boss(640, 250, boss_data)]
+    # pick enemy tier based on depth
+    if room_num < 3:
+        pool  = REGULAR_ENEMIES[:4]   # tier 1
+        count = 3
+    elif room_num < 6:
+        pool  = REGULAR_ENEMIES[4:8]  # tier 2
+        count = 4
+    else:
+        pool  = REGULAR_ENEMIES[8:]   # tier 3
+        count = 5
+    spawns = coords[:]
+    result = []
+    for i in range(count):
+        data  = choice(pool)
+        sx, sy = spawns[i%len(spawns)]
+        result.append(Enemy(sx+randint(-30, 30), sy+randint(-30, 30),data))
+    return result
+
 pygame.init()
 #initial screen
 screen = pygame.display.set_mode((w_width,w_height))#
@@ -178,7 +220,10 @@ clock = pygame.time.Clock()
 pygame.display.set_caption(title)
 #initialize player class
 player = Player(640, 360, "larry")
-enemies = [Enemy(randint(100,1180), randint(50,670)), Enemy(randint(100,1180), randint(50,670)), Enemy(randint(100,1180), randint(50,670))]
+current_room = 0
+enemies = generate_room(current_room)
+door_rect = pygame.Rect(w_width - tile_size, w_height//2 - 40, tile_size, 80)
+door_open = False
 
 while True:
     dt = clock.tick(fps)/1000.0
@@ -204,8 +249,24 @@ while True:
     draw(screen)
     player.draw(screen)
     for enemy in enemies:
-        if enemy:
-            enemy.draw(screen)
-            enemy.update(player.player_rect, dt) 
+        enemy.draw(screen)
+        enemy.update(player.player_rect, enemies, dt)
+    # room cleared
+    if len(enemies) == 0:
+        door_open = True
+    # draw door
+    if door_open:
+        pygame.draw.rect(screen, (200, 150, 50), door_rect)
+    else:
+        pygame.draw.rect(screen, (60, 40, 20), door_rect)
+    # next room — player pressed against right wall and aligned with door
+    if door_open:
+        near_door = (player.player_rect.right >= w_width - tile_size - 5 and
+                     door_rect.top < player.player_rect.centery < door_rect.bottom)
+        if near_door:
+            current_room += 1
+            enemies = generate_room(current_room)
+            door_open = False
+            player.player_rect.center = (640, 360)
     pygame.display.update()
 
