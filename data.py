@@ -175,8 +175,8 @@ REGULAR_ENEMIES = [
         "name": "Plague Rat",
         "max_hp": 55,
         "attacks": [
-            {"name": "Gnaw",          "damage": [5,  9],  "cooldown": 0},
-            {"name": "Infected Bite", "damage": [6, 10],  "cooldown": 1, "status_effect": "bleed"},
+            {"name": "Gnaw", "damage": [5,  9],  "cooldown": 0},
+            {"name": "Infected Bite", "damage": [6, 10], "cooldown": 1, "status_effect": "bleed"},
         ],
         "reward_gold": 18,
         "reward_potions": 1,
