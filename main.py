@@ -143,6 +143,26 @@ class Player:
         font = pygame.font.SysFont(None, 36)
         screen.blit(font.render(f"Room {current_room + 1}", True, (255,255,255)), (10, 30))
         screen.blit(font.render(f"Enemies: {len(enemies)}", True, (255,255,255)), (10, 60))
+        # special attack cooldown boxes
+        box_size = 50
+        box_gap  = 10
+        labels   = ["1", "2", "3", "4"]
+        total_w  = 4*box_size + 3*box_gap
+        start_x  = (w_width - total_w) // 2
+        box_y    = w_height - box_size - 10
+        small_font = pygame.font.SysFont(None, 24)
+        for i in range(4):
+            bx = start_x + i * (box_size + box_gap)
+            if self.special_timers[i] <= 0:
+                color = (180, 140, 40)   # gold = ready
+            else:
+                color = (60, 60, 60)     # grey = on cooldown
+            pygame.draw.rect(screen, color, (bx, box_y, box_size, box_size))
+            pygame.draw.rect(screen, (255, 255, 255), (bx, box_y, box_size, box_size), 2)
+            screen.blit(small_font.render(labels[i], True, (255, 255, 255)), (bx + 5, box_y + 5))
+            if self.special_timers[i] > 0:
+                cd_text = f"{self.special_timers[i]:.1f}s"
+                screen.blit(small_font.render(cd_text, True, (200, 200, 200)), (bx + 5, box_y + 35))
 
 class Enemy:
     def __init__(self, x, y, data):
@@ -162,14 +182,35 @@ class Enemy:
         self.name = data["name"]
         self.max_hp  = data["max_hp"]
         self.hp = data["max_hp"]
+        self.dying = False
+        self.dead = False
         self.speed = 150
         self.surf = pygame.Surface((40, 60))
         self.surf.fill((180, 60, 60))
         self.rect = self.surf.get_rect(center=(x, y))
         self.attacks = data["attacks"]
         self.attack_timer = 0
+        self.attacking = False
 
     def update(self, player_rect, enemies, dt):
+        if self.dying:
+            if self.anims and "death" in self.anims:
+                self.anim_timer += dt
+                if self.anim_timer >= self.frame_duration:
+                    self.anim_timer = 0
+                    self.anim_frame += 1
+                    if self.anim_frame >= len(self.anims["death"]):
+                        self.dead = True
+            else:
+                self.dead = True
+            return 0
+        if self.hp <= 0:
+            self.dying = True
+            if self.anims and "death" in self.anims:
+                self.current_anim_key = "death"
+                self.anim_frame = 0
+                self.anim_timer = 0
+            return 0
         dx = player_rect.centerx - self.rect.centerx
         dy = player_rect.centery - self.rect.centery
         dis = math.sqrt(dx*dx + dy*dy)
@@ -183,18 +224,21 @@ class Enemy:
             self.facing = "left"
         #animation
         if self.anims:
-            if dis > 80:
-                anim_key = "walk_" + self.facing
-            else:
-                anim_key = "idle_" + self.facing
-            if anim_key != self.current_anim_key:
-                self.current_anim_key = anim_key
-                self.anim_frame = 0
-                self.anim_timer = 0
+            if not self.attacking:
+                if dis > 80:
+                    anim_key = "walk_" + self.facing
+                else:
+                    anim_key = "idle_" + self.facing
+                if anim_key != self.current_anim_key:
+                    self.current_anim_key = anim_key
+                    self.anim_frame = 0
+                    self.anim_timer = 0
             self.anim_timer += dt
             if self.anim_timer >= self.frame_duration:
                 self.anim_timer = 0
                 self.anim_frame = (self.anim_frame + 1) % len(self.anims[self.current_anim_key])
+                if self.attacking and self.anim_frame == 0:
+                    self.attacking = False
 
         #collision
         self.rect.x += dx*self.speed*dt
@@ -222,10 +266,17 @@ class Enemy:
             atk = choice(self.attacks)
             damage = randint(atk["damage"][0], atk["damage"][1])
             self.attack_timer = 1.5 + atk["cooldown"]*0.5
+            if self.anims:
+                self.attacking = True
+                self.current_anim_key = "attack_" + self.facing
+                self.anim_frame = 0
+                self.anim_timer = 0
             return damage
         return 0
 
     def draw(self, screen):
+        if self.dead:
+            return
         if self.anims:
             screen.blit(self.anims[self.current_anim_key][self.anim_frame],self.rect)
         else: screen.blit(self.surf, self.rect)
@@ -343,7 +394,6 @@ while True:
                     attack_range = player.player_rect.inflate(60, 60)
                     if attack_range.colliderect(enemy.rect):
                         enemy.hp -= randint(atk["damage"][0], atk["damage"][1])
-                enemies = [e for e in enemies if e.hp>0]
                 
             if event.key == kset["special1"]:
                 atk = player.attacks[1]
@@ -352,7 +402,6 @@ while True:
                         attack_range = player.player_rect.inflate(80, 80)
                         if attack_range.colliderect(enemy.rect):
                             enemy.hp -= randint(atk["damage"][0], atk["damage"][1])
-                enemies = [e for e in enemies if e.hp>0]
                 
             if event.key == kset["special2"]:
                 atk = player.attacks[2]
@@ -361,7 +410,6 @@ while True:
                         attack_range = player.player_rect.inflate(80, 80)
                         if attack_range.colliderect(enemy.rect):
                             enemy.hp -= randint(atk["damage"][0], atk["damage"][1])
-                enemies = [e for e in enemies if e.hp>0]
                 
             if event.key == kset["special3"]:
                 atk = player.attacks[3]
@@ -370,7 +418,6 @@ while True:
                         attack_range = player.player_rect.inflate(80, 80)
                         if attack_range.colliderect(enemy.rect):
                             enemy.hp -= randint(atk["damage"][0], atk["damage"][1])
-                enemies = [e for e in enemies if e.hp>0]
                 
             if event.key == kset["special4"]:
                 atk = player.attacks[4]
@@ -379,13 +426,13 @@ while True:
                         attack_range = player.player_rect.inflate(80, 80)
                         if attack_range.colliderect(enemy.rect):
                             enemy.hp -= randint(atk["damage"][0], atk["damage"][1])
-                enemies = [e for e in enemies if e.hp>0]
                 
     #updation
     keys = pygame.key.get_pressed()
     player.update(keys, wall_rects, dt)
     for enemy in enemies:
         player.hp -= enemy.update(player.player_rect, enemies, dt)
+    enemies = [e for e in enemies if not e.dead]
     #player death
     if player.hp <= 0:
         font = pygame.font.SysFont(None, 80)
@@ -396,6 +443,12 @@ while True:
         pygame.time.delay(2000)
         player.hp = player.max_hp
         player.player_rect.center = (640,360)
+        player.attacking = False
+        player.anim_frame = 0
+        player.anim_timer = 0
+        player.current_anim_key = "idle_right"
+        player.facing = "right"
+        player.special_timers = [0, 0, 0, 0]
         current_room = 0
         enemies = generate_room(current_room)
         door_open = False
