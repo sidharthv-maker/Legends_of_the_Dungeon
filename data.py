@@ -170,6 +170,16 @@ REGULAR_ENEMIES = [
         ],
         "reward_gold": 20,
         "reward_potions": 1,
+        "sprite_folder": "tier1/goblin",
+        "sprites": {
+            "idle_left":    ["05_goblin_marauder_idle_left_01.png",  "06_goblin_marauder_idle_left_02.png"],
+            "idle_right":   ["07_goblin_marauder_idle_right_01.png", "08_goblin_marauder_idle_right_02.png"],
+            "walk_left":    ["09_goblin_marauder_walk_left_01.png",  "10_goblin_marauder_walk_left_02.png",  "11_goblin_marauder_walk_left_03.png"],
+            "walk_right":   ["12_goblin_marauder_walk_right_01.png", "13_goblin_marauder_walk_right_02.png", "14_goblin_marauder_walk_right_03.png"],
+            "attack_left":  ["15_goblin_marauder_rusty_stab_left_01.png",  "16_goblin_marauder_rusty_stab_left_02.png"],
+            "attack_right": ["17_goblin_marauder_rusty_stab_right_01.png", "18_goblin_marauder_rusty_stab_right_02.png"],
+            "death":        ["25_goblin_marauder_death_01.png", "26_goblin_marauder_death_02.png", "27_goblin_marauder_death_03.png", "28_goblin_marauder_death_04.png"],
+        },
     },
     {
         "name": "Plague Rat",
@@ -180,6 +190,16 @@ REGULAR_ENEMIES = [
         ],
         "reward_gold": 18,
         "reward_potions": 1,
+        "sprite_folder": "tier1/rat",
+        "sprites": {
+            "idle_left":    ["05_plague_rat_idle_left_01.png",  "06_plague_rat_idle_left_02.png"],
+            "idle_right":   ["07_plague_rat_idle_right_01.png", "08_plague_rat_idle_right_02.png"],
+            "walk_left":    ["09_plague_rat_walk_left_01.png",  "10_plague_rat_walk_left_02.png",  "11_plague_rat_walk_left_03.png"],
+            "walk_right":   ["12_plague_rat_walk_right_01.png", "13_plague_rat_walk_right_02.png", "14_plague_rat_walk_right_03.png"],
+            "attack_left":  ["15_plague_rat_gnaw_left_01.png",  "16_plague_rat_gnaw_left_02.png"],
+            "attack_right": ["17_plague_rat_gnaw_right_01.png", "18_plague_rat_gnaw_right_02.png"],
+            "death":        ["27_plague_rat_death_01.png", "28_plague_rat_death_02.png", "29_plague_rat_death_03.png", "30_plague_rat_death_04.png"],
+        },
     },
     {
         "name": "Skeleton Knight",
@@ -190,6 +210,16 @@ REGULAR_ENEMIES = [
         ],
         "reward_gold": 25,
         "reward_potions": 1,
+        "sprite_folder": "tier1/skeleton_knight",
+        "sprites": {
+            "idle_left":    ["05_skeleton_knight_idle_left_01.png",  "06_skeleton_knight_idle_left_02.png"],
+            "idle_right":   ["07_skeleton_knight_idle_right_01.png", "08_skeleton_knight_idle_right_02.png"],
+            "walk_left":    ["09_skeleton_knight_walk_left_01.png",  "10_skeleton_knight_walk_left_02.png",  "11_skeleton_knight_walk_left_03.png"],
+            "walk_right":   ["12_skeleton_knight_walk_right_01.png", "13_skeleton_knight_walk_right_02.png", "14_skeleton_knight_walk_right_03.png"],
+            "attack_left":  ["15_skeleton_knight_bone_slash_left_01.png",  "16_skeleton_knight_bone_slash_left_02.png"],
+            "attack_right": ["17_skeleton_knight_bone_slash_right_01.png", "18_skeleton_knight_bone_slash_right_02.png"],
+            "death":        ["25_skeleton_knight_death_01.png", "26_skeleton_knight_death_02.png", "27_skeleton_knight_death_03.png", "28_skeleton_knight_death_04.png"],
+        },
     },
     {
         "name": "Venom Spider",
@@ -200,6 +230,16 @@ REGULAR_ENEMIES = [
         ],
         "reward_gold": 22,
         "reward_potions": 1,
+        "sprite_folder": "tier1/spider",
+        "sprites": {
+            "idle_left":    ["05_venom_spider_idle_left_01.png",  "06_venom_spider_idle_left_02.png"],
+            "idle_right":   ["07_venom_spider_idle_right_01.png", "08_venom_spider_idle_right_02.png"],
+            "walk_left":    ["09_venom_spider_walk_left_01.png",  "10_venom_spider_walk_left_02.png",  "11_venom_spider_walk_left_03.png"],
+            "walk_right":   ["12_venom_spider_walk_right_01.png", "13_venom_spider_walk_right_02.png", "14_venom_spider_walk_right_03.png"],
+            "attack_left":  ["15_venom_spider_venomous_bite_left_01.png",  "16_venom_spider_venomous_bite_left_02.png"],
+            "attack_right": ["17_venom_spider_venomous_bite_right_01.png", "18_venom_spider_venomous_bite_right_02.png"],
+            "death":        ["27_venom_spider_death_01.png", "28_venom_spider_death_02.png", "29_venom_spider_death_03.png", "30_venom_spider_death_04.png"],
+        },
     },
     # ── Tier 2 (mid rooms) ────────────────────────────────────────────────────
     {

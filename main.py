@@ -140,9 +140,25 @@ class Player:
         pygame.draw.rect(screen, (0, 80, 0),(bar_x, bar_y, bar_width, bar_height))
         current_width = int(bar_width*(self.hp/self.max_hp))
         pygame.draw.rect(screen, (0, 200, 0), (bar_x, bar_y, current_width, bar_height))
+        font = pygame.font.SysFont(None, 36)
+        screen.blit(font.render(f"Room {current_room + 1}", True, (255,255,255)), (10, 30))
+        screen.blit(font.render(f"Enemies: {len(enemies)}", True, (255,255,255)), (10, 60))
 
 class Enemy:
     def __init__(self, x, y, data):
+        def load(filename):
+            return pygame.image.load(f"assets/sprites/enemies/{data['sprite_folder']}/{filename}").convert_alpha()
+        if "sprites" in data:
+            self.anims = {}
+            for anim_key, filenames in data["sprites"].items():
+                self.anims[anim_key] = [load(f) for f in filenames]
+            self.facing = "right"
+            self.current_anim_key = "idle_right"
+            self.anim_frame = 0
+            self.anim_timer = 0
+            self.frame_duration = 0.15
+        else:
+            self.anims = None
         self.name = data["name"]
         self.max_hp  = data["max_hp"]
         self.hp = data["max_hp"]
@@ -160,6 +176,27 @@ class Enemy:
         if dis != 0:
             dx /= dis
             dy /= dis
+        #facing
+        if dx > 0:
+            self.facing = "right"
+        else:
+            self.facing = "left"
+        #animation
+        if self.anims:
+            if dis > 80:
+                anim_key = "walk_" + self.facing
+            else:
+                anim_key = "idle_" + self.facing
+            if anim_key != self.current_anim_key:
+                self.current_anim_key = anim_key
+                self.anim_frame = 0
+                self.anim_timer = 0
+            self.anim_timer += dt
+            if self.anim_timer >= self.frame_duration:
+                self.anim_timer = 0
+                self.anim_frame = (self.anim_frame + 1) % len(self.anims[self.current_anim_key])
+
+        #collision
         self.rect.x += dx*self.speed*dt
         for wall in wall_rects:
             if self.rect.colliderect(wall):
@@ -189,7 +226,9 @@ class Enemy:
         return 0
 
     def draw(self, screen):
-        screen.blit(self.surf, self.rect)
+        if self.anims:
+            screen.blit(self.anims[self.current_anim_key][self.anim_frame],self.rect)
+        else: screen.blit(self.surf, self.rect)
         bar_width  = 50
         bar_height = 6
         bar_x = self.rect.x
@@ -349,6 +388,12 @@ while True:
         player.hp -= enemy.update(player.player_rect, enemies, dt)
     #player death
     if player.hp <= 0:
+        font = pygame.font.SysFont(None, 80)
+        screen.blit(font.render("GAME OVER", True, (200, 0, 0)), (440, 300))
+        font2 = pygame.font.SysFont(None, 36)
+        screen.blit(font2.render(f"Reached Room {current_room + 1}", True, (255,255,255)), (520, 380))
+        pygame.display.update()
+        pygame.time.delay(2000)
         player.hp = player.max_hp
         player.player_rect.center = (640,360)
         current_room = 0
