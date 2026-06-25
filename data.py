@@ -104,16 +104,16 @@ CHARACTER_TEMPLATES = {
         "scale": 4.0,
         "sprite_folder": "larry",
         "sprites": {
-            "idle_left":     ["05_idle_left_01.png",  "06_idle_left_02.png"],
+            "idle_left":     ["01_main_left.png", "01_main_left.png"],              # 05/06 broken – placeholder
             "idle_right":    ["07_idle_right_01.png", "08_idle_right_02.png"],
             "idle_front":    ["02_main_front.png"],
             "idle_back":     ["04_main_back.png"],
-            "walk_left":     ["09_walk_left_01.png",  "10_walk_left_02.png",  "11_walk_left_03.png"],
-            "walk_right":    ["12_walk_right_01.png", "13_walk_right_02.png", "14_walk_right_03.png"],
-            "attack_right":  ["15_basic_left_01.png", "16_basic_left_02_slash.png"],
-            "attack_left":   ["17_basic_right_01_slash.png", "18_basic_right_02.png"],
-            "special_right": ["19_special_left_01_crowned.png", "20_special_left_02_necro_burst.png", "20_special_left_02_necro_burst.png", "21_special_left_03_projectile.png"],
-            "special_left":  ["22_special_right_01_crowned.png", "23_special_right_02_necro_burst.png", "23_special_right_02_necro_burst.png","24_special_right_03_projectile.png"],
+            "walk_left":     ["07_walk_left_01.png", "08_walk_left_02.png", "09_walk_left_03.png"],
+            "walk_right":    ["07_idle_right_01.png", "08_idle_right_02.png"],      # no walk_right sprites yet
+            "attack_right":  ["10_basic_attack_right_01.png", "11_basic_attack_right_02.png"],
+            "attack_left":   ["10_basic_attack_right_01.png", "11_basic_attack_right_02.png"],  # no attack_left yet
+            "special_right": ["12_special_attack_left_01.png", "12_special_attack_left_01.png", "12_special_attack_left_01.png", "12_special_attack_left_01.png"],  # 13/14 are wrong (dragon)
+            "special_left":  ["12_special_attack_left_01.png", "12_special_attack_left_01.png", "12_special_attack_left_01.png", "12_special_attack_left_01.png"],
         },
         "passive": {
             "name": "Undying",
