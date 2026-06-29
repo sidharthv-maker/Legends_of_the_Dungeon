@@ -112,8 +112,8 @@ CHARACTER_TEMPLATES = {
             "walk_right":    ["12_walk_right_01.png", "13_walk_right_02.png", "14_walk_right_03.png"],
             "attack_right":  ["15_basic_attack_left_01.png", "15_basic_attack_left_01.png"],
             "attack_left":   ["17_basic_attack_right_01.png", "17_basic_attack_right_01.png"],
-            "special_right": ["19_special_attack_left_01.png", "20_special_attack_left_02.png", "21_special_attack_left_03.png"],
-            "special_left":  ["22_special_attack_right_01.png", "23_special_attack_right_02.png", "24_special_attack_right_03.png"],
+            "special_right": ["19_special_attack_left_01.png", "20_special_attack_left_02.png","20_special_attack_left_02.png", "21_special_attack_left_03.png"],
+            "special_left":  ["22_special_attack_right_01.png", "23_special_attack_right_02.png","23_special_attack_right_02.png", "24_special_attack_right_03.png"],
         },
         "passive": {
             "name": "Undying",
